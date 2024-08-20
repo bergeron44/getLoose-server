@@ -5,10 +5,8 @@ const app = express();
 // Correct usage of express.json()
 app.use(express.json());
 
-// Remove unnecessary and incorrect middleware usage
-// app.use(express());
-
-const mongoUri = "mongodb+srv://asaf8071:GetLoose11235@cluster0.80otawd.mongodb.net/";
+// Define your MongoDB URI with a database name
+const mongoUri = "mongodb+srv://ronberger40:GetLooseDB44@getloosemaincluster.jejhk.mongodb.net/";
 
 module.exports = async function connect() {
   // Importing models
@@ -19,14 +17,10 @@ module.exports = async function connect() {
   require('../models/LiveGame');
 
   try {
-    return mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false
-    });
+    await mongoose.connect(mongoUri);
+    console.log('Connected to MongoDB');
   } catch (e) {
-    console.log('Could not connect to MongoDB:', e);
+    console.error('Could not connect to MongoDB:', e.message);
     process.exit(1);
   }
 };

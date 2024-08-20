@@ -3,4 +3,6 @@ module.exports = function (app) {
     require('./Bars-routes')(app)
     require('./DailyStatistic-routes')(app)
     require('./Packages-routes')(app)
+    require('./LiveGame-routes')(app)
+
 };

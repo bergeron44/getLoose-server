@@ -32,5 +32,4 @@ package: {
 
 })
 const LiveGame = mongoose.model('LiveGame', LiveGameSchema);
-
-module.exports = DailyStatistic;
+module.exports = LiveGame;

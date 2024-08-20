@@ -1,24 +1,24 @@
 const {
-    getLiveGame,
-    getLiveGameById,
-    getAllLiveGamesWithSameAttribute,
-    getAllLiveGames,
-    addLiveGame,
-    removeLiveGameFromDataBase,
-    removeAllLiveGamesFromThisList,
-    updateLiveGameById,
-    getLiveGameByBarAndTableNumber
+    getLiveGameCont,
+    getLiveGameByIdCont,
+    getAllLiveGamesWithSameAttributeCont,
+    getAllLiveGamesCont,
+    addLiveGameCont,
+    removeLiveGameFromDataBaseCont,
+    removeAllLiveGamesFromThisListCont,
+    updateLiveGameByIdCont,
+    getLiveGameByBarAndTableNumberCont
 } = require('../controllers/LiveGame-controller')
 module.exports = function (app) {
     app
-        .get('/api/livegame/:livegameName', getLiveGame)
-        .get('/api/livegame/:livegameId', getLiveGameById)
-        .get('/api//livegame/:attribute/:value', getAllLiveGamesWithSameAttribute)
-        .get('/api/livegame', getAllLiveGames)
-        .post('/api/livegame/:livegame', addLiveGame)
-        .delete('/api/livegame/:liveGameId', removeLiveGameFromDataBase)
-        .delete('/api/livegame', removeAllLiveGamesFromThisList)
-        .post('/api/livegame/:livenameId/:livegame', updateLiveGameById,)
-        .get('/api/livegame/:bar/:tableNumber', getLiveGameByBarAndTableNumber);
+        .get('/api/livegame/:livegameName', getLiveGameCont)
+        .get('/api/livegame/:livegameId', getLiveGameByIdCont)
+        .get('/api//livegame/:attribute/:value', getAllLiveGamesWithSameAttributeCont)
+        .get('/api/livegame', getAllLiveGamesCont)
+        .post('/api/livegame/:livegame', addLiveGameCont)
+        .delete('/api/livegame/:liveGameId', removeLiveGameFromDataBaseCont)
+        .delete('/api/livegame', removeAllLiveGamesFromThisListCont)
+        .post('/api/livegame/:livenameId/:livegame', updateLiveGameByIdCont,)
+        .get('/api/livegame/:bar/:tableNumber', getLiveGameByBarAndTableNumberCont);
 
 };

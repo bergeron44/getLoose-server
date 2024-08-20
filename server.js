@@ -24,7 +24,6 @@ app.use(
 app.use(cors());
 
 app.use('/health', async (_req, res, _next) => {
-
   const healthcheck = {
       uptime: process.uptime(),
       message: 'OK',
@@ -34,20 +33,23 @@ app.use('/health', async (_req, res, _next) => {
       res.send(healthcheck);
   } catch (error) {
       healthcheck.message = error;
-      res.status(204).send();
+      res.status(500).send(healthcheck);
   }
-
-  // res.status(204).send();
 });
 
 require('./routes/index')(app);
 
-connect().then(() => {
-  console.log('DB is connected');
-  app.listen(PORT, () => {
-    console.log('Server is up with express on port: ', PORT);
-    console.log(process.env.NODE_ENV)
-    //console.log(process.env.NODE_ENV)
+connect()
+  .then(() => {
+    console.log('DB is connected');
+    app.listen(PORT, () => {
+      console.log(`Server is up with express on port: ${PORT}`);
+      console.log(process.env.NODE_ENV);
+    });
+  })
+  .catch(err => {
+    console.error('Failed to connect to DB', err);
+    process.exit(1); // Exit the process if the DB connection fails
   });
-});
+
 //http://localhost:3001
