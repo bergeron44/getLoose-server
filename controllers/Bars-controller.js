@@ -8,132 +8,117 @@ const {
     addBar,
     updateBar,
     updateBarById,
-} = require('../services/Bars-services')
-const serverResponse = require('../utils/serverResponse')
+} = require('../services/Bars-services');
+const serverResponse = require('../utils/serverResponse');
 
+// Controller to get a bar by its name
 const getBarByNameCont = async (req, res) => {
-    try{
-        const bar = await getBar(req.params.barName)
-        const {barName, location,capacity,barPackages} = bar
-        if(!bar){
-            return serverResponse(res, 404, { message: "no category found"})
+    try {
+        const bar = await getBar(req.params.barName);
+        if (!bar) {
+            return serverResponse(res, 404, { message: "No bar found with the given name" });
         }
-        return serverResponse(res, 200,{barName, location,capacity,barPackages})
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'error occured while trying to get bar by name'})
+        return serverResponse(res, 200, bar);
+    } catch (e) {
+        console.error(e);
+        return serverResponse(res, 500, { message: 'Error occurred while trying to get bar by name' });
     }
-}
+};
+
+// Controller to get a bar by its ID
 const getBarByIdCont = async (req, res) => {
-    try{
-        const bar = await getBar(req.params._id)
-        const {barName, location,capacity,barPackages} = bar
-        if(!bar){
-            return serverResponse(res, 404, { message: "no category found"})
+    try {
+        const bar = await getBarById(req.params.barId);
+        if (!bar) {
+            return serverResponse(res, 404, { message: "No bar found with the given ID" });
         }
-        return serverResponse(res, 200,{barName, location,capacity,barPackages})
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'error occured while trying to get bar by id'})
+        return serverResponse(res, 200, bar);
+    } catch (e) {
+        console.error(e);
+        return serverResponse(res, 500, { message: 'Error occurred while trying to get bar by ID' });
     }
-}
+};
+
+// Controller to delete a bar by its name
 const deleteBarByNameCont = async (req, res) => {
-    try{
-        const Bar = await removeBarFromDataBase(req.params.barName)
+    try {
+        const barName = req.params.barName;
+        const deletedBar = await removeBarFromDataBase(barName);
 
-        if(!Bar){
-            return serverResponse(res, 404, { message: "the bar dosent exsist"})
+        if (!deletedBar) {
+            return serverResponse(res, 404, { message: "The bar doesn't exist" });
         }
 
-        return serverResponse(res, 200,  { message: "bar remove seccesfully"})
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'error occured while trying to remove bar'})
+        return serverResponse(res, 200, { message: "Bar removed successfully" });
+    } catch (e) {
+        console.log(e);
+        return serverResponse(res, 500, { message: 'Error occurred while trying to remove bar' });
     }
-}
+};
 
-
+// Controller to create a new bar
 const createBarCont = async (req, res) => {
-    try{
-        const newBar = {...req.body}
-            if((newBar.barName=="")||(newBar.location=="")||(newBar.capacity==0)){
-             return serverResponse(res, 404, { message: "no capble to add new bar to data base missing information"})
+    try {
+        const { barName, location, capacity } = req.body;
+        if (!barName || !location || capacity == null) {
+            return serverResponse(res, 400, { message: "Missing required information" });
         }
-        const barName=newBar.barName
-        const bar = await getCategory(barName)
-             if(!bar){
-                const newBAR = await addBar(newBar)
-                if(!newBAR){
-                    return serverResponse(res, 404, { message: "no capble to add new bar"})
-                }
-                return serverResponse(res, 200,newBAR)
-           }
-
-        return serverResponse(res, 200, bar)
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occured while trying to add bar to data base'})
+        const existingBar = await getBar(barName);
+        if (existingBar) {
+            return serverResponse(res, 400, { message: "Bar already exists" });
+        }
+        const newBar = await addBar(req.body);
+        return serverResponse(res, 201, newBar);
+    } catch (e) {
+        console.error(e);
+        return serverResponse(res, 500, { message: 'Internal error occurred while trying to add bar' });
     }
-}
+};
 
+// Controller to update a bar by its name
 const editBarCont = async (req, res) => {
-    try{
-        const oldBarContent = await getBar(req.params.barName)
-        if(!oldBarContent){
-            return serverResponse(res, 400, { message: "no bar found"})
+    try {
+        const { barName } = req.params;
+        const oldBarContent = await getBar(barName);
+        if (!oldBarContent) {
+            return serverResponse(res, 404, { message: "No bar found with the given name" });
         }
-        const newbarInfo={...req.body};
-        const updatedBar = await updateBar(oldBarContent.barName,newbarInfo);
-        if(!updatedBar){
-            return serverResponse(res, 400, { message: "no able to update bar "+req.params.categoryName+" with new name :  "+req.params.barName})
-        }
-
-        return serverResponse(res, 200, updatedBar)
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occured while trying to update category'})
+        const updatedBar = await updateBar(barName, req.body);
+        return serverResponse(res, 200, updatedBar);
+    } catch (e) {
+        console.error(e);
+        return serverResponse(res, 500, { message: 'Internal error occurred while trying to update bar' });
     }
-}
+};
 
-//////
-//פונקציה יחסית מיותרת
-//////
+// Controller to get all bar names
 const getAllBarsNamesCont = async (req, res) => {
-    try{
-        const allBars = await getAllBars()
-        const arr=[]
-        allBars.forEach(({barName}) =>{arr.push(barName)})
-        if(!allBars){
-            return serverResponse(res, 404, { message: "no capble to get all bars name"})
+    try {
+        const allBars = await getAllBars();
+        if (!allBars) {
+            return serverResponse(res, 404, { message: "No bars found" });
         }
-
-        return serverResponse(res, 200, arr)
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occured while trying to get all names from categorys'})
+        const barNames = allBars.map(bar => bar.barName);
+        return serverResponse(res, 200, barNames);
+    } catch (e) {
+        console.error(e);
+        return serverResponse(res, 500, { message: 'Internal error occurred while trying to get all bar names' });
     }
-}
-//ֿֿֿֿ//////////
+};
+
+// Controller to get all bars
 const getAllBarssCont = async (req, res) => {
-    try{
-        const allbars = await getAllBars()
-       
-        if(!allbars){
-            return serverResponse(res, 404, { message: "no capble to get all bar's"})
+    try {
+        const allBars = await getAllBars();
+        if (!allBars) {
+            return serverResponse(res, 404, { message: "No bars found" });
         }
-
-        return serverResponse(res, 200, allbars)
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occured while trying to get all names from bars'})
+        return serverResponse(res, 200, allBars);
+    } catch (e) {
+        console.error(e);
+        return serverResponse(res, 500, { message: 'Internal error occurred while trying to get all bars' });
     }
-}
-
-
-
-//end
-
-
+};
 
 module.exports = {
     getBarByNameCont,
@@ -143,4 +128,4 @@ module.exports = {
     editBarCont,
     getAllBarsNamesCont,
     getAllBarssCont,
-}
+};

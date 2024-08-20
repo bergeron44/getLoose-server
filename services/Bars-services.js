@@ -1,43 +1,41 @@
-const Bars = require('../models/Bars')
+const Bars = require('../models/Bars');
 
-const getBar= (barName) => {
-    return Bars.findOne({barName})
+const getBar = (barName) => {
+    return Bars.findOne({ barName });
+};
 
-}
-const getBarById= (BarId) => {
-    return Bars.findOne({_id:BarId})
+const getBarById = (BarId) => {
+    return Bars.findOne({ _id: BarId });
+};
 
-}
-const getAllBarsWithSameAttribute= (attribute, whatToCheck) => {
-    return Bars.find({[attribute]: whatToCheck})
-}//get an attribute and bring baeck all the objects with the same attribute
+const getAllBarsWithSameAttribute = (attribute, whatToCheck) => {
+    return Bars.find({ [attribute]: whatToCheck });
+};
 
 const getAllBars = () => {
-    return Bars.find({})
-}
+    return Bars.find({});
+};
 
-const addBar =(barObject) =>{
-    newBar = new Bar(barObject)
-    return newBar.save()
-}
+const addBar = (barObject) => {
+    const newBar = new Bars(barObject);
+    return newBar.save();
+};
 
 const removeBarFromDataBase = (barName) => {
-    return Bars.findOneAndRemove({barName})
-}
+    return Bars.deleteOne({ barName });
+};
 
 const removeAllBarsFromThisList = (BarsListNames) => {
-    categoryListNames.forEach(barName => {
-        Bars.findOneAndRemove({barName})
-    })
-}
-
+    return Bars.deleteMany({ barName: { $in: BarsListNames } });
+};
 
 const updateBar = (barName, newContent) => {
-    return Bars.findOneAndUpdate({barName}, newContent, {new:true})
-}
+    return Bars.findOneAndUpdate({ barName }, newContent, { new: true });
+};
+
 const updateBarById = (barId, newContent) => {
-    return Bars.findOneAndUpdate({_id:barId}, newContent, {new:true})
-}
+    return Bars.findOneAndUpdate({ _id: barId }, newContent, { new: true });
+};
 
 module.exports = {
     getBar,
@@ -49,4 +47,4 @@ module.exports = {
     removeAllBarsFromThisList,
     updateBar,
     updateBarById
-}
+};
