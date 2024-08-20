@@ -16,6 +16,7 @@ module.exports = async function connect() {
   require('../models/DailyStatistic');
   require('../models/Packages');
   require('../models/Bars');
+  require('../models/LiveGame');
 
   try {
     return mongoose.connect(mongoUri, {
