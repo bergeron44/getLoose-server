@@ -8,6 +8,13 @@ const getLiveGameById = (liveGameId) => {
     return LiveGames.findOne({ _id: liveGameId });
 }
 
+//added by asaf
+const getLiveGameByBarAndTableNumber=(barId,tableNumber)=>{
+    return LiveGames.findOne({bar:barId,tableNumber:tableNumber});
+}
+
+//done by asaf
+
 const getAllLiveGamesWithSameAttribute = (attribute, whatToCheck) => {
     return LiveGames.find({ [attribute]: whatToCheck });
 }//get an attribute and bring back all the objects with the same attribute
@@ -21,18 +28,14 @@ const addLiveGame = (liveGameObject) => {
     return newLiveGame.save();
 }
 
-const removeLiveGameFromDataBase = (liveGameName) => {
-    return LiveGames.findOneAndRemove({ liveGameName });
+const removeLiveGameFromDataBase = (liveGameId) => {
+    return LiveGames.findOneAndRemove({ liveGameId });
 }
 
 const removeAllLiveGamesFromThisList = (liveGameListNames) => {
     liveGameListNames.forEach(liveGameName => {
         LiveGames.findOneAndRemove({ liveGameName });
     });
-}
-
-const updateLiveGame = (liveGameName, newContent) => {
-    return LiveGames.findOneAndUpdate({ liveGameName }, newContent, { new: true });
 }
 
 const updateLiveGameById = (liveGameId, newContent) => {
@@ -47,6 +50,6 @@ module.exports = {
     addLiveGame,
     removeLiveGameFromDataBase,
     removeAllLiveGamesFromThisList,
-    updateLiveGame,
-    updateLiveGameById
+    updateLiveGameById,
+    getLiveGameByBarAndTableNumber
 };
