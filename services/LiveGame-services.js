@@ -1,46 +1,66 @@
 const LiveGames = require('../models/LiveGame');
+const mongoose = require('mongoose');
 
 const getLiveGame = (liveGameName) => {
-    return LiveGames.findOne({ liveGameName });
-}
+    return LiveGames.findOne({ gameType: liveGameName });
+};
 
 const getLiveGameById = (liveGameId) => {
-    return LiveGames.findOne({ _id: liveGameId });
-}
+    return LiveGames.findById(liveGameId);
+};
 
-//added by asaf
-const getLiveGameByBarAndTableNumber=(barId,tableNumber)=>{
-    return LiveGames.findOne({bar:barId,tableNumber:tableNumber});
-}
+// Added by Asaf
+const getLiveGameByBarAndTableNumber = (barId, tableNumber) => {
+    return LiveGames.findOne({ bar: barId, tableNumber: tableNumber });
+};
 
-//done by asaf
-
+// Done by Asaf
 const getAllLiveGamesWithSameAttribute = (attribute, whatToCheck) => {
     return LiveGames.find({ [attribute]: whatToCheck });
-}//get an attribute and bring back all the objects with the same attribute
+};
 
 const getAllLiveGames = () => {
     return LiveGames.find({});
-}
+};
 
 const addLiveGame = (liveGameObject) => {
     const newLiveGame = new LiveGames(liveGameObject);
     return newLiveGame.save();
-}
+};
 
 const removeLiveGameFromDataBase = (liveGameId) => {
-    return LiveGames.findOneAndRemove({ liveGameId });
+    return LiveGames.findByIdAndDelete(liveGameId); // Updated method name
 }
 
-const removeAllLiveGamesFromThisList = (liveGameListNames) => {
-    liveGameListNames.forEach(liveGameName => {
-        LiveGames.findOneAndRemove({ liveGameName });
+
+const removeAllLiveGamesFromThisList = (liveGameListIdentifiers) => {
+    return Promise.all(
+        liveGameListIdentifiers.map(async (identifier) => {
+            let result = null;
+
+            // Check if the identifier is a valid ObjectId
+            if (mongoose.Types.ObjectId.isValid(identifier)) {
+                // Attempt to remove by ID
+                result = await LiveGames.findByIdAndDelete(identifier);
+            }
+
+            // If not found by ID or the identifier is not an ObjectId, try removing by name
+            if (!result) {
+                result = await LiveGames.findOneAndDelete({ gameType: identifier });
+            }
+
+            // Return the result or null if not found
+            return result;
+        })
+    ).then(results => {
+        // Filter out nulls and return an array of removed documents
+        return results.filter(result => result !== null);
     });
-}
+};
 
 const updateLiveGameById = (liveGameId, newContent) => {
-    return LiveGames.findOneAndUpdate({ _id: liveGameId }, newContent, { new: true });
-}
+    return LiveGames.findByIdAndUpdate(liveGameId, newContent, { new: true });
+};
 
 module.exports = {
     getLiveGame,
