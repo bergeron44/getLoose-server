@@ -75,15 +75,28 @@ const createBarCont = async (req, res) => {
     }
 };
 
-// Controller to update a bar by its name
+// Controller to update a bar by its name or ID
 const editBarCont = async (req, res) => {
     try {
-        const { barName } = req.params;
-        const oldBarContent = await getBar(barName);
-        if (!oldBarContent) {
-            return serverResponse(res, 404, { message: "No bar found with the given name" });
+        let bar;
+        
+        // Check if barName is provided in the params
+        if (req.params.barName) {
+            bar = await getBar(req.params.barName);
         }
-        const updatedBar = await updateBar(barName, req.body);
+        
+        // Check if barId is provided in the params
+        if (req.params.barId) {
+            bar = await getBarById(req.params.barId);
+        }
+        
+        // If no bar found with the given name or ID
+        if (!bar) {
+            return serverResponse(res, 404, { message: "No bar found with the given identifier" });
+        }
+        
+        // Update the bar
+        const updatedBar = await updateBar(bar.barName, req.body); // Assuming `updateBar` still uses barName as identifier
         return serverResponse(res, 200, updatedBar);
     } catch (e) {
         console.error(e);
@@ -105,13 +118,11 @@ const getAllBarsNamesCont = async (req, res) => {
         return serverResponse(res, 500, { message: 'Internal error occurred while trying to get all bar names' });
     }
 };
-
-// Controller to get all bars
-const getAllBarssCont = async (req, res) => {
+const getAllBarsCont = async (req, res) => {
     try {
         const allBars = await getAllBars();
-        if (!allBars) {
-            return serverResponse(res, 404, { message: "No bars found" });
+        if (!allBars || allBars.length === 0) {
+            return serverResponse(res, 404, { message: "No bars available" });
         }
         return serverResponse(res, 200, allBars);
     } catch (e) {
@@ -120,6 +131,7 @@ const getAllBarssCont = async (req, res) => {
     }
 };
 
+
 module.exports = {
     getBarByNameCont,
     getBarByIdCont,
@@ -127,5 +139,5 @@ module.exports = {
     createBarCont,
     editBarCont,
     getAllBarsNamesCont,
-    getAllBarssCont,
+    getAllBarsCont,
 };

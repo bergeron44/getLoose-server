@@ -6,110 +6,115 @@ const {
     removeAllPackagesFromList,
     removePackageById,
     updatePackageById,
-} = require('../services/Packages-services')
-const serverResponse = require('../utils/serverResponse')
+    checkPackageExists,
+} = require('../services/Packages-services');
+const serverResponse = require('../utils/serverResponse');
 
 const getPackageCont = async (req, res) => {
-    try{
-        const package = await getPackageId(req.params._id)
-        const {price, packagesContant} = package
-        if(!package){
-            return serverResponse(res, 404, { message: "no package found"})
+    try {
+        const pkg = await getPackageId(req.params.packageId);
+        if (!pkg) {
+            return serverResponse(res, 404, { message: "No package found" });
         }
-        return serverResponse(res, 200, {price, packagesContant})
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occurred while trying to get package'})
+        const { price, packagesContant } = pkg;
+        return serverResponse(res, 200, { price, packagesContant });
+    } catch (e) {
+        console.log(e);
+        return serverResponse(res, 500, { message: 'Internal error occurred while trying to get package' });
     }
-}
+};
 
 const deletePackageCont = async (req, res) => {
-    try{
-        const packageToRemove = await removePackageById(req.params._id)
+    try {
+        const packageToRemove = await removePackageById(req.params.packageId);
 
-        if(!packageToRemove){
-            return serverResponse(res, 404, { message: "the package To Remove doesn't exist"})
+        if (!packageToRemove) {
+            return serverResponse(res, 404, { message: "The package doesn't exist" });
         }
 
-        return serverResponse(res, 200,  { message: "package To Remove ,removed successfully"})
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occurred while trying to remove package'})
+        return serverResponse(res, 200, { message: "Package removed successfully" });
+    } catch (e) {
+        console.log(e);  // Check this log for more details
+        return serverResponse(res, 500, { message: 'Internal error occurred while trying to remove package' });
     }
-}
+};
 
 const deleteAllPackagesFromListCont = async (req, res) => {
-    try{
-        const packageToRemove = await removeAllPackagesFromList(req.body.list)
+    try {
+        const result = await removeAllPackagesFromList(req.body.list);
 
-        if(!packageToRemove){
-            return serverResponse(res, 404, { message: "the packages To Remove doesn't exist"})
+        if (result.deletedCount === 0) {
+            return serverResponse(res, 404, { message: "No packages found to remove" });
         }
 
-        return serverResponse(res, 200,  { message: "packages To Remove ,all removed successfully"})
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occurred while trying to remove all package in list'})
+        return serverResponse(res, 200, { message: "All packages removed successfully" });
+    } catch (e) {
+        console.log(e);
+        return serverResponse(res, 500, { message: 'Internal error occurred while trying to remove packages' });
     }
-}
+};
 
 const createPackageCont = async (req, res) => {
-    try{
-        const newPackageData = {...req.body}
-        if(newPackageData.packagesContant === ""){
-            return serverResponse(res, 404, { message: "unable to add new package because you provided no content"})
+    try {
+        const newPackageData = { ...req.body };
+
+        if (!newPackageData.packagesContant) {
+            return serverResponse(res, 400, { message: "Package content is required" });
         }
 
-            const newCategory = await addPackages(newPackageData)
-            if(!newCategory){
-                return serverResponse(res, 404, { message: "unable to add new package"})
-            }
-            return serverResponse(res, 200, newCategory)
+        // Check if a package with the same price and content already exists
+        const existingPackage = await checkPackageExists(newPackageData.price, newPackageData.packagesContant);
+        if (existingPackage) {
+            return serverResponse(res, 400, { message: "A package with the same price and content already exists" });
+        }
 
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occurred while trying to add category'})
+        const newPackage = await addPackages(newPackageData);
+        if (!newPackage) {
+            return serverResponse(res, 400, { message: "Unable to add new package" });
+        }
+
+        return serverResponse(res, 201, newPackage);
+    } catch (e) {
+        console.log(e);
+        return serverResponse(res, 500, { message: 'Internal error occurred while trying to add package' });
     }
-}
+};
 
 
 const editPackageByIdCont = async (req, res) => {
-    try{
-        const oldPackage = await getPackageId(req.params.categoryId)
-        if(!oldPackage){
-            return serverResponse(res, 400, { message: "no pakge  found to update"})
+    try {
+        const oldPackage = await getPackageId(req.params.packageId);
+        if (!oldPackage) {
+            return serverResponse(res, 404, { message: "No package found to update" });
         }
 
-        const newPackageData = {...req.body};
-        const newPackage = await updatePackageById(oldPackage._id, newPackageData);
-        if(!newPackage){
-            return serverResponse(res, 400, { message: "unable to update this package"})
+        const newPackageData = { ...req.body };
+        const newPackage = await updatePackageById(req.params.packageId, newPackageData);
+        if (!newPackage) {
+            return serverResponse(res, 400, { message: "Unable to update this package" });
         }
 
-        return serverResponse(res, 200, newPackage)
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occurred while trying to update package'})
+        return serverResponse(res, 200, newPackage);
+    } catch (e) {
+        console.log(e);
+        return serverResponse(res, 500, { message: 'Internal error occurred while trying to update package' });
     }
-}
+};
 
 const getAllPackagesCont = async (req, res) => {
-    try{
-        const allPackages = await getAllPackages()
-       
-        if(!allPackages){
-            return serverResponse(res, 404, { message: "unable to get all packages"})
+    try {
+        const allPackages = await getAllPackages();
+
+        if (!allPackages || allPackages.length === 0) {
+            return serverResponse(res, 404, { message: "No packages found" });
         }
 
-        return serverResponse(res, 200, allPackages)
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occurred while trying to get all names from packages'})
+        return serverResponse(res, 200, allPackages);
+    } catch (e) {
+        console.log(e);
+        return serverResponse(res, 500, { message: 'Internal error occurred while trying to get all packages' });
     }
-}
-
-
-
+};
 
 module.exports = {
     getPackageCont,
@@ -118,4 +123,4 @@ module.exports = {
     createPackageCont,
     editPackageByIdCont,
     getAllPackagesCont,
-}
+};

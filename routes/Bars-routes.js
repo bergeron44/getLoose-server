@@ -5,13 +5,13 @@ const {
     createBarCont,
     editBarCont,
     getAllBarsNamesCont,
-    getAllBarssCont,
+    getAllBarsCont,
 } = require('../controllers/Bars-controller');
 
 module.exports = function (app) {
     app
         .get('/api/bar/:barName', getBarByNameCont)                  // Retrieve a bar by name
-        .get('/api/bars', getAllBarssCont)                           // Retrieve all bars
+        .get('/api/bars', getAllBarsCont)                           // Retrieve all bars
         .get('/api/bar/:barId', getBarByIdCont)                      // Retrieve a bar by ID
         .get('/api/bars/names', getAllBarsNamesCont)                 // Retrieve all bar names
         .post('/api/bar/:barName/edit/name', editBarCont)            // Update bar name by current name
