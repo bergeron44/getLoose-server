@@ -25,7 +25,7 @@ const getBarByNameCont = async (req, res) => {
         }
         return serverResponse(res, 200, bar);
     } catch (e) {
-        console.error(e);
+        console.error('Error in getBarByNameCont:', e);
         return serverResponse(res, 500, { message: 'Error occurred while trying to get bar by name' });
     }
 };
@@ -39,7 +39,7 @@ const getBarByIdCont = async (req, res) => {
         }
         return serverResponse(res, 200, bar);
     } catch (e) {
-        console.error(e);
+        console.error('Error in getBarByIdCont:', e);
         return serverResponse(res, 500, { message: 'Error occurred while trying to get bar by ID' });
     }
 };
@@ -56,7 +56,7 @@ const deleteBarByNameCont = async (req, res) => {
 
         return serverResponse(res, 200, { message: "Bar removed successfully" });
     } catch (e) {
-        console.log(e);
+        console.error('Error in deleteBarByNameCont:', e);
         return serverResponse(res, 500, { message: 'Error occurred while trying to remove bar' });
     }
 };
@@ -91,7 +91,7 @@ const createBarCont = async (req, res) => {
 
         return serverResponse(res, 201, newBar);
     } catch (e) {
-        console.error(e);
+        console.error('Error in createBarCont:', e);
         return serverResponse(res, 500, { message: 'Internal error occurred while trying to add bar' });
     }
 };
@@ -130,7 +130,7 @@ const editBarCont = async (req, res) => {
 
         return serverResponse(res, 200, updatedBar);
     } catch (e) {
-        console.error(e);
+        console.error('Error in editBarCont:', e);
         return serverResponse(res, 500, { message: 'Internal error occurred while trying to update bar' });
     }
 };
@@ -139,13 +139,13 @@ const editBarCont = async (req, res) => {
 const getAllBarsNamesCont = async (req, res) => {
     try {
         const allBars = await getAllBars();
-        if (!allBars) {
+        if (!allBars || allBars.length === 0) {
             return serverResponse(res, 404, { message: "No bars found" });
         }
         const barNames = allBars.map(bar => bar.barName);
         return serverResponse(res, 200, barNames);
     } catch (e) {
-        console.error(e);
+        console.error('Error in getAllBarsNamesCont:', e);
         return serverResponse(res, 500, { message: 'Internal error occurred while trying to get all bar names' });
     }
 };
@@ -159,7 +159,7 @@ const getAllBarsCont = async (req, res) => {
         }
         return serverResponse(res, 200, allBars);
     } catch (e) {
-        console.error(e);
+        console.error('Error in getAllBarsCont:', e);
         return serverResponse(res, 500, { message: 'Internal error occurred while trying to get all bars' });
     }
 };
@@ -176,7 +176,7 @@ const getAllPackagesForBarCont = async (req, res) => {
 
         return serverResponse(res, 200, barWithPackages.barPackages);
     } catch (e) {
-        console.error(e);
+        console.error('Error in getAllPackagesForBarCont:', e);
         return serverResponse(res, 500, { message: 'Error occurred while trying to get packages for bar' });
     }
 };
@@ -198,7 +198,7 @@ const findNearestBarCont = async (req, res) => {
 
         return serverResponse(res, 200, nearestBars);
     } catch (e) {
-        console.error(e);
+        console.error('Error in findNearestBarCont:', e);
         return serverResponse(res, 500, { message: 'Error occurred while trying to find the nearest bar' });
     }
 };
