@@ -5,15 +5,18 @@ const {
     createDailyStatisticCont,
     getAllDailyStatisticPackagesCont,
     getAllDailyStatisticCont,
-} = require('../controllers/DailyStatistic-controller')
+} = require('../controllers/DailyStatistic-controller');
 
 module.exports = function (app) {
-    app
-        .get('/api/DailyStatistic/:DailyStatisticId', getDailyStatisticCont)
-        .get('/api/DailyStatistics',getAllDailyStatisticCont )
-        .get('/api/categorys/packages',getAllDailyStatisticPackagesCont )
-        .post('/api/category/:DailyStatisticId/edit',editdailyStatisticCont)
-        .post('/api/category/create',createDailyStatisticCont)
-        .delete('/api/category/:DailyStatisticId/delete',deleteDailyStatisticCont)
-        
-}
+    // GET routes
+    app.get('/api/DailyStatistics/:DailyStatisticId', getDailyStatisticCont);
+    app.get('/api/DailyStatistics', getAllDailyStatisticCont);
+    app.get('/api/categorys/packages', getAllDailyStatisticPackagesCont);
+
+    // POST routes
+    app.post('/api/categorys/:DailyStatisticId/edit', editdailyStatisticCont);
+    app.post('/api/categorys/create', createDailyStatisticCont);
+
+    // DELETE routes
+    app.delete('/api/categorys/:DailyStatisticId/delete', deleteDailyStatisticCont);
+};

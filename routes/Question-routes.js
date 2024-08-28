@@ -7,16 +7,20 @@ const {
     removeQuestionCont,
     updateDifficultCont,
     updateQuestionUseCont
-} = require('../controllers/Questions-controller')
-module.exports = function (app){
-    app
-        .get('/api/question/:questionId', getQuestionCont)
-        .get('/api/questions', getAllQuestionsCont)
-        .get('/api//questions/:categoryName', getCategoryQuestionsCont)
-        .get('/api/questions/:gameCat', getGameQuestionsCont)
-        .post('/api/question/:question',addQuestionCont)
-        .post('/api/question/:questionId/:succeed',updateQuestionUseCont)
-        .post('/api/questions',updateDifficultCont)
-        .delete('/api/question/:questionId',removeQuestionCont);
-        
+} = require('../controllers/Questions-controller');
+
+module.exports = function (app) {
+    // GET routes
+    app.get('/api/questions/:questionId', getQuestionCont);
+    app.get('/api/questions', getAllQuestionsCont);
+    app.get('/api/questions/category/:categoryName', getCategoryQuestionsCont);
+    app.get('/api/questions/game/:gameCat', getGameQuestionsCont);
+
+    // POST routes
+    app.post('/api/questions', addQuestionCont);
+    app.post('/api/questions/:questionId/:succeed', updateQuestionUseCont);
+    app.post('/api/questions/difficulty', updateDifficultCont);
+
+    // DELETE routes
+    app.delete('/api/questions/:questionId', removeQuestionCont);
 };
