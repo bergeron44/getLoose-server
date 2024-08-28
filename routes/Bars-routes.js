@@ -6,14 +6,18 @@ const {
     editBarCont,
     getAllBarsNamesCont,
     getAllBarsCont,
+    getAllPackagesForBarCont,
+    findNearestBarCont // Import the new controller
 } = require('../controllers/Bars-controller');
 
 module.exports = function (app) {
     app
         .get('/api/bar/:barName', getBarByNameCont)                  // Retrieve a bar by name
-        .get('/api/bars', getAllBarsCont)                           // Retrieve all bars
+        .get('/api/bars', getAllBarsCont)                            // Retrieve all bars
         .get('/api/bar/:barId', getBarByIdCont)                      // Retrieve a bar by ID
         .get('/api/bars/names', getAllBarsNamesCont)                 // Retrieve all bar names
+        .get('/api/bar/:barId/packages', getAllPackagesForBarCont)   // Retrieve all packages for a specific bar by ID
+        .get('/api/bars/nearest', findNearestBarCont)                 // Retrieve the nearest bar based on location
         .post('/api/bar/:barName/edit/name', editBarCont)            // Update bar name by current name
         .post('/api/bar/:barId/edit', editBarCont)                   // Update bar by ID
         .post('/api/bar/create', createBarCont)                      // Create a new bar

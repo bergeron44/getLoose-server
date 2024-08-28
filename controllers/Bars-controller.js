@@ -8,12 +8,13 @@ const {
     addBar,
     updateBar,
     updateBarById,
-    addPackage // Import addPackage if necessary
+    getAllPackagesForBar,
+    findNearestBars // Import the new function
 } = require('../services/Bars-services');
 
 const serverResponse = require('../utils/serverResponse');
-const Bars = require('../models/Bars'); // Ensure Bars model is imported
-const Packages = require('../models/Packages'); // Ensure Packages model is imported
+const Bars = require('../models/Bars');
+const Packages = require('../models/Packages');
 
 // Controller to get a bar by its name
 const getBarByNameCont = async (req, res) => {
@@ -49,7 +50,7 @@ const deleteBarByNameCont = async (req, res) => {
         const barName = req.params.barName;
         const deletedBar = await removeBarFromDataBase(barName);
 
-        if (!deletedBar) {
+        if (!deletedBar.deletedCount) {
             return serverResponse(res, 404, { message: "The bar doesn't exist" });
         }
 
@@ -63,7 +64,7 @@ const deleteBarByNameCont = async (req, res) => {
 // Controller to create a new bar
 const createBarCont = async (req, res) => {
     try {
-        const { barName, location, capacity, packages } = req.body; // Expecting packages in the request body
+        const { barName, location, capacity, packages } = req.body;
 
         if (!barName || !location || capacity == null) {
             return serverResponse(res, 400, { message: "Missing required information" });
@@ -74,19 +75,16 @@ const createBarCont = async (req, res) => {
             return serverResponse(res, 400, { message: "Bar already exists" });
         }
 
-        // Create the new bar
         const newBar = new Bars({ barName, location, capacity });
         await newBar.save();
 
-        // Create and associate packages if provided
         if (packages && packages.length > 0) {
             const createdPackages = await Promise.all(packages.map(async (pkg) => {
                 const newPackage = new Packages(pkg);
                 await newPackage.save();
-                return newPackage._id; // Return the ID of the created package
+                return newPackage._id;
             }));
 
-            // Update the bar with the created packages
             newBar.barPackages = createdPackages;
             await newBar.save();
         }
@@ -103,36 +101,29 @@ const editBarCont = async (req, res) => {
     try {
         let bar;
 
-        // Check if barName is provided in the params
         if (req.params.barName) {
             bar = await getBar(req.params.barName);
         }
 
-        // Check if barId is provided in the params
         if (req.params.barId) {
             bar = await getBarById(req.params.barId);
         }
 
-        // If no bar found with the given name or ID
         if (!bar) {
             return serverResponse(res, 404, { message: "No bar found with the given identifier" });
         }
 
-        // Update the bar
         const updatedBar = await updateBar(bar.barName, req.body);
 
-        // Update packages if provided in the request body
         if (req.body.packages) {
             const { packages } = req.body;
 
-            // Create and associate new packages
             const createdPackages = await Promise.all(packages.map(async (pkg) => {
                 const newPackage = new Packages(pkg);
                 await newPackage.save();
                 return newPackage._id;
             }));
 
-            // Update the bar with the new packages
             updatedBar.barPackages = createdPackages;
             await updatedBar.save();
         }
@@ -173,6 +164,45 @@ const getAllBarsCont = async (req, res) => {
     }
 };
 
+// Controller to get all packages for a specific bar by ID
+const getAllPackagesForBarCont = async (req, res) => {
+    try {
+        const barId = req.params.barId;
+        const barWithPackages = await getAllPackagesForBar(barId);
+
+        if (!barWithPackages) {
+            return serverResponse(res, 404, { message: "No bar or packages found with the given ID" });
+        }
+
+        return serverResponse(res, 200, barWithPackages.barPackages);
+    } catch (e) {
+        console.error(e);
+        return serverResponse(res, 500, { message: 'Error occurred while trying to get packages for bar' });
+    }
+};
+
+// New controller to find the nearest bar based on location
+const findNearestBarCont = async (req, res) => {
+    try {
+        const { latitude, longitude } = req.query;
+
+        if (!latitude || !longitude) {
+            return serverResponse(res, 400, { message: "Latitude and longitude are required" });
+        }
+
+        const nearestBars = await findNearestBars(parseFloat(longitude), parseFloat(latitude));
+
+        if (nearestBars.length === 0) {
+            return serverResponse(res, 404, { message: "No bars found near your location" });
+        }
+
+        return serverResponse(res, 200, nearestBars);
+    } catch (e) {
+        console.error(e);
+        return serverResponse(res, 500, { message: 'Error occurred while trying to find the nearest bar' });
+    }
+};
+
 module.exports = {
     getBarByNameCont,
     getBarByIdCont,
@@ -181,4 +211,6 @@ module.exports = {
     editBarCont,
     getAllBarsNamesCont,
     getAllBarsCont,
+    getAllPackagesForBarCont,
+    findNearestBarCont // Export the new controller
 };
