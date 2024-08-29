@@ -9,7 +9,8 @@ const {
     updateBar,
     updateBarById,
     getAllPackagesForBar,
-    findNearestBars // Import the new function
+    findNearestBars,
+    getBarByQrUrl // Import the new function
 } = require('../services/Bars-services');
 
 const serverResponse = require('../utils/serverResponse');
@@ -64,7 +65,7 @@ const deleteBarByNameCont = async (req, res) => {
 // Controller to create a new bar
 const createBarCont = async (req, res) => {
     try {
-        const { barName, location, capacity, packages } = req.body;
+        const { barName, location, capacity, packages, qrUrl } = req.body;
 
         if (!barName || !location || capacity == null) {
             return serverResponse(res, 400, { message: "Missing required information" });
@@ -75,7 +76,7 @@ const createBarCont = async (req, res) => {
             return serverResponse(res, 400, { message: "Bar already exists" });
         }
 
-        const newBar = new Bars({ barName, location, capacity });
+        const newBar = new Bars({ barName, location, capacity, qrUrl });
         await newBar.save();
 
         if (packages && packages.length > 0) {
@@ -181,7 +182,7 @@ const getAllPackagesForBarCont = async (req, res) => {
     }
 };
 
-// New controller to find the nearest bar based on location
+// New controller function to find the nearest bar based on location
 const findNearestBarCont = async (req, res) => {
     try {
         const { latitude, longitude } = req.query;
@@ -203,6 +204,54 @@ const findNearestBarCont = async (req, res) => {
     }
 };
 
+// New controller function to get a bar by QR URL
+const getBarByQrUrlCont = async (req, res) => {
+    try {
+        const { qrUrl } = req.query; // Get the QR URL from query parameters
+
+        if (!qrUrl) {
+            return serverResponse(res, 400, { message: "QR URL is required" });
+        }
+
+        const bar = await getBarByQrUrl(qrUrl);
+
+        if (!bar) {
+            return serverResponse(res, 404, { message: "No bar found with the given QR URL" });
+        }
+
+        return serverResponse(res, 200, bar);
+    } catch (e) {
+        console.error('Error in getBarByQrUrlCont:', e);
+        return serverResponse(res, 500, { message: 'Error occurred while trying to get bar by QR URL' });
+    }
+};
+
+const updateLiveGameWithIP = async (req, res) => {
+    try {
+        const { barId, ipAddress } = req.body;
+
+        if (!barId || !ipAddress) {
+            return serverResponse(res, 400, { message: "Bar ID and IP address are required" });
+        }
+
+        // Find the live game for the given barId and update it
+        const liveGame = await LiveGame.findOne({ bar: barId });
+
+        if (!liveGame) {
+            return serverResponse(res, 404, { message: "Live game not found for the given bar" });
+        }
+
+        // Update playersNames with the new IP address
+        liveGame.playersNames.push(ipAddress);
+        await liveGame.save();
+
+        return serverResponse(res, 200, liveGame);
+    } catch (e) {
+        console.error('Error in updateLiveGameWithIP:', e);
+        return serverResponse(res, 500, { message: 'Error occurred while updating live game with IP address' });
+    }
+};
+
 module.exports = {
     getBarByNameCont,
     getBarByIdCont,
@@ -212,5 +261,7 @@ module.exports = {
     getAllBarsNamesCont,
     getAllBarsCont,
     getAllPackagesForBarCont,
-    findNearestBarCont // Export the new controller
+    findNearestBarCont,
+    getBarByQrUrlCont ,// Export the new controller
+    updateLiveGameWithIP
 };

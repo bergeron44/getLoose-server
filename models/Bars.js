@@ -10,11 +10,11 @@ const BarsSchema = new mongoose.Schema({
         type: {
             type: String,
             enum: ['Point'], // Specifies that the type must be 'Point'
-            required: true,
+            default: 0,
         },
         coordinates: {
             type: [Number], // Array of numbers representing [longitude, latitude]
-            required: true,
+            default: 0,
         },
     },
     capacity: {
@@ -26,6 +26,10 @@ const BarsSchema = new mongoose.Schema({
         ref: 'Packages', // Reference to the Packages collection
         default: [], // Default to an empty array if no packages are provided
     }],
+    qrUrl: {
+        type: String,
+        required: true, // qrUrl is mandatory
+    },
 });
 
 // Create a geospatial index on the location field for efficient spatial queries

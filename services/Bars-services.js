@@ -51,7 +51,7 @@ const getAllPackagesForBar = (barId) => {
     return Bars.findById(barId).populate('barPackages').exec();
 };
 
-// New function to find bars near a given location
+// Find bars near a given location
 const findNearestBars = async (longitude, latitude, maxDistance = 10000) => {
     return Bars.find({
         location: {
@@ -66,6 +66,11 @@ const findNearestBars = async (longitude, latitude, maxDistance = 10000) => {
     });
 };
 
+// Find a bar by its QR URL
+const getBarByQrUrl = (qrUrl) => {
+    return Bars.findOne({ qrUrl });
+};
+
 module.exports = {
     getBar,
     getBarById,
@@ -77,5 +82,6 @@ module.exports = {
     updateBar,
     updateBarById,
     getAllPackagesForBar,
-    findNearestBars, // Export the new function
+    findNearestBars,
+    getBarByQrUrl // Export the new function
 };
