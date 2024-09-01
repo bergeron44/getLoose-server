@@ -23,4 +23,4 @@ module.exports = function (app) {
 
     // DELETE routes
     app.delete('/api/questions/:questionId', removeQuestionCont);
-};
+}

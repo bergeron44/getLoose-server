@@ -76,17 +76,33 @@ const {
   
   const addLiveGameCont = async (req, res) => {
     try {
-      const addLiveGameParam = { ...req.body };
-      if (!addLiveGameParam.bar || !addLiveGameParam.tableNumber) {
-        return serverResponse(res, 400, { message: "Bar and tableNumber are required to add a new live game" });
-      }
-      const newLiveGameOb = await addLiveGame(addLiveGameParam);
-      return serverResponse(res, 201, newLiveGameOb);
+        const addLiveGameParam = { ...req.body };
+
+        // Extracting necessary fields
+        const { bar, gameType, playersNames, tableName, tableNumber, package } = addLiveGameParam;
+
+        // Validation: Ensure required fields are provided
+        if (!bar) {
+            return serverResponse(res, 400, { message: "Bar is required to add a new live game" });
+        }
+
+        if (!gameType || !["Date", "Friends"].includes(gameType)) {
+            return serverResponse(res, 400, { message: "Invalid or missing gameType. Must be 'Date' or 'Friends'." });
+        }
+
+        if (!Array.isArray(playersNames) || playersNames.length === 0) {
+            return serverResponse(res, 400, { message: "At least one player name is required." });
+        }
+
+        // Proceed to add the new live game
+        const newLiveGameOb = await addLiveGame(addLiveGameParam);
+        return serverResponse(res, 201, newLiveGameOb);
+
     } catch (e) {
-      console.log(e);
-      return serverResponse(res, 500, { message: 'Internal error occurred while trying to add live game' });
+        console.log(e);
+        return serverResponse(res, 500, { message: 'Internal error occurred while trying to add live game' });
     }
-  };
+};
   
   const removeLiveGameFromDataBaseCont = async (req, res) => {
     try {
