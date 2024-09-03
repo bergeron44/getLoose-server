@@ -40,7 +40,7 @@ const getAllQuestionsCont = async (req, res) => {
 }
 const getCategoryQuestionsCont = async (req, res) => {
     try {
-      const categoryQuestions= await getAttributeQuestions(category, req.params.category)
+      const categoryQuestions= await getAttributeQuestions(category, req.params.categoryName)
       if (!categoryQuestions) {
         return serverResponse(res, 404, {
           message: 'There are no questions in that category'
@@ -54,18 +54,21 @@ const getCategoryQuestionsCont = async (req, res) => {
   };
   const getGameQuestionsCont = async (req, res) => {
     try {
-      const gameQuestions= await getAttributeQuestions(game, req.params.game)
-      if (!gameQuestions) {
-        return serverResponse(res, 404, {
-          message: 'There are no questions in that game'
-        });
-      }
-      return serverResponse(res, 200,gameQuestions);
-    } catch (e) {
-      console.log(e)
-      return serverResponse(res, 500, {message: 'internal error occured while trying to get this game Questions'})
+        const { gameCat } = req.params;
+
+        // Use the `getAttributeQuestions` function from the service layer
+        const questions = await getAttributeQuestions('game', gameCat);
+        
+        if (questions.length === 0) {
+            return res.status(404).json({ message: "No questions found for this game category" });
+        }
+
+        return res.status(200).json(questions);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error" });
     }
-  };
+};
 
   const addQuestionCont = async (req, res) =>{
     try{

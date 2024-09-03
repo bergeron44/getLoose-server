@@ -65,38 +65,38 @@ const deleteBarByNameCont = async (req, res) => {
 // Controller to create a new bar
 const createBarCont = async (req, res) => {
     try {
-        const { barName, location, capacity, packages, qrUrl } = req.body;
+        const { barName, location, capacity, barPackages, qrUrl } = req.body;
 
+        // Check for missing required information
         if (!barName || !location || capacity == null) {
             return serverResponse(res, 400, { message: "Missing required information" });
         }
 
-        const existingBar = await getBar(barName);
+        // Check if a bar with the same name already exists
+        const existingBar = await Bars.findOne({ barName });
         if (existingBar) {
-            return serverResponse(res, 400, { message: "Bar already exists" });
+            return serverResponse(res, 400, { message: "Bar with this name already exists" });
         }
 
-        const newBar = new Bars({ barName, location, capacity, qrUrl });
+        // Create the new bar with the provided packages
+        const newBar = new Bars({
+            barName,
+            location,
+            capacity,
+            barPackages: barPackages, // Directly add the packages array to the new bar
+            qrUrl,
+        });
+
+        // Save the new bar to the database
         await newBar.save();
 
-        if (packages && packages.length > 0) {
-            const createdPackages = await Promise.all(packages.map(async (pkg) => {
-                const newPackage = new Packages(pkg);
-                await newPackage.save();
-                return newPackage._id;
-            }));
-
-            newBar.barPackages = createdPackages;
-            await newBar.save();
-        }
-
+        // Return the newly created bar
         return serverResponse(res, 201, newBar);
     } catch (e) {
         console.error('Error in createBarCont:', e);
         return serverResponse(res, 500, { message: 'Internal error occurred while trying to add bar' });
     }
 };
-
 // Controller to update a bar by its name or ID
 const editBarCont = async (req, res) => {
     try {

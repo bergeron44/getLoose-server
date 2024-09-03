@@ -20,7 +20,7 @@ question:{
     type:String,
     require:true,
 },
-answer:{
+punishment:{
     type:String,
     require:true,
 },
