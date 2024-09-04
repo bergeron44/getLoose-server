@@ -20,10 +20,18 @@ question:{
     type:String,
     require:true,
 },
+questionEnglish:{
+    type:String,
+    default:"",
+},
 punishment:{
     type:String,
     require:true,
 },
+punishmentEnglish:{
+    type:String,
+    default:"", 
+}
 // questionImage:{
 //     type:URL,
 // },
