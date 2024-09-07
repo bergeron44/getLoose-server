@@ -16,6 +16,7 @@ const {
 const serverResponse = require('../utils/serverResponse');
 const Bars = require('../models/Bars');
 const Packages = require('../models/Packages');
+const LiveGame = require('../models/LiveGame'); // Assuming you have a LiveGame model
 
 // Controller to get a bar by its name
 const getBarByNameCont = async (req, res) => {
@@ -65,38 +66,41 @@ const deleteBarByNameCont = async (req, res) => {
 // Controller to create a new bar
 const createBarCont = async (req, res) => {
     try {
-        const { barName, location, capacity, barPackages, qrUrl } = req.body;
+        // Dynamically import fetch
+        const { default: fetch } = await import('node-fetch');
 
-        // Check for missing required information
-        if (!barName || !location || capacity == null) {
-            return serverResponse(res, 400, { message: "Missing required information" });
-        }
-
-        // Check if a bar with the same name already exists
-        const existingBar = await Bars.findOne({ barName });
+        // Check if the bar name already exists
+        const existingBar = await Bars.findOne({ barName: req.body.barName });
         if (existingBar) {
-            return serverResponse(res, 400, { message: "Bar with this name already exists" });
+            return res.status(400).json({ message: 'Bar name already exists.' });
         }
 
-        // Create the new bar with the provided packages
+        // Fetch the IP address
+        const response = await fetch('https://api.ipify.org/?format=json');
+        const data = await response.json();
+        const barIp = data.ip; // Get the IP address from the response
+
+        // Create a new bar with the IP address
         const newBar = new Bars({
-            barName,
-            location,
-            capacity,
-            barPackages: barPackages, // Directly add the packages array to the new bar
-            qrUrl,
+            barName: req.body.barName,
+            location: req.body.location,
+            capacity: req.body.capacity,
+            barPackages: req.body.barPackages,
+            qrUrl: req.body.qrUrl,
+            barIp: barIp, // Assign the fetched IP address
         });
 
         // Save the new bar to the database
         await newBar.save();
 
-        // Return the newly created bar
-        return serverResponse(res, 201, newBar);
-    } catch (e) {
-        console.error('Error in createBarCont:', e);
-        return serverResponse(res, 500, { message: 'Internal error occurred while trying to add bar' });
+        // Respond with the newly created bar
+        res.status(201).json(newBar);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error. Failed to create the bar.' });
     }
 };
+
 // Controller to update a bar by its name or ID
 const editBarCont = async (req, res) => {
     try {
@@ -238,17 +242,16 @@ const updateLiveGameWithIP = async (req, res) => {
         const liveGame = await LiveGame.findOne({ bar: barId });
 
         if (!liveGame) {
-            return serverResponse(res, 404, { message: "Live game not found for the given bar" });
+            return serverResponse(res, 404, { message: "Live game not found for this bar" });
         }
 
-        // Update playersNames with the new IP address
         liveGame.playersNames.push(ipAddress);
         await liveGame.save();
 
-        return serverResponse(res, 200, liveGame);
+        return serverResponse(res, 200, { message: 'Live game updated with new player IP address' });
     } catch (e) {
         console.error('Error in updateLiveGameWithIP:', e);
-        return serverResponse(res, 500, { message: 'Error occurred while updating live game with IP address' });
+        return serverResponse(res, 500, { message: 'Error occurred while trying to update live game' });
     }
 };
 
@@ -262,6 +265,6 @@ module.exports = {
     getAllBarsCont,
     getAllPackagesForBarCont,
     findNearestBarCont,
-    getBarByQrUrlCont ,// Export the new controller
-    updateLiveGameWithIP
+    getBarByQrUrlCont, // Export the new function
+    updateLiveGameWithIP, // Export the new function
 };

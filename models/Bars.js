@@ -30,6 +30,10 @@ const BarsSchema = new mongoose.Schema({
         type: String,
         required: true, // qrUrl is mandatory
     },
+    barIp: {
+        type: String,
+        required: true, // the bar ip
+    },
 });
 
 // Create a geospatial index on the location field for efficient spatial queries
