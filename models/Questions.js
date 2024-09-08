@@ -31,10 +31,11 @@ punishment:{
 punishmentEnglish:{
     type:String,
     default:"", 
-}
-// questionImage:{
-//     type:URL,
-// },
+},
+questionImage:{
+    type:String,
+    default:"",
+},
 })
 const Questions = mongoose.model('Questions', QuestionsSchema);
 

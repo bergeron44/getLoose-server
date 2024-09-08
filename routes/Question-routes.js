@@ -6,7 +6,8 @@ const {
     addQuestionCont,
     removeQuestionCont,
     updateDifficultCont,
-    updateQuestionUseCont
+    updateQuestionUseCont,
+    getFilteredQuestionsCont
 } = require('../controllers/Questions-controller');
 
 module.exports = function (app) {
@@ -15,6 +16,7 @@ module.exports = function (app) {
     app.get('/api/questions', getAllQuestionsCont);
     app.get('/api/questions/category/:categoryName', getCategoryQuestionsCont);
     app.get('/api/questions/game/:gameCat', getGameQuestionsCont);
+    app.get('/filtered', getFilteredQuestionsCont);
 
     // POST routes
     app.post('/api/questions', addQuestionCont);

@@ -143,6 +143,31 @@ const removeQuestionCont =async (req,res) =>{
     }
   };
 
+  // In your controllers/Questions-controller.js
+
+const getFilteredQuestionsCont = async (req, res) => {
+  try {
+    const { difficulty, game } = req.query;
+
+    if (!difficulty || !game) {
+      return res.status(400).json({ message: 'Difficulty and game type are required' });
+    }
+
+    const questions = await getFilteredQuestions(difficulty, game);
+
+    if (questions.length === 0) {
+      return res.status(404).json({ message: 'No questions found for the given criteria' });
+    }
+
+    return res.status(200).json(questions);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
 module.exports = {
     getQuestionCont,
     getAllQuestionsCont,
@@ -151,5 +176,6 @@ module.exports = {
     addQuestionCont,
     removeQuestionCont,
     updateDifficultCont,
-    updateQuestionUseCont
+    updateQuestionUseCont,
+    getFilteredQuestionsCont
 }

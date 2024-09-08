@@ -29,6 +29,17 @@ const updateQuestionUse= (questionId, success) =>{
     }
     return Questions.findByIdAndUpdate(questionId,{appearance:row.appearance + 1, successRate:row.successRate})
 }
+//new
+// In your services/Questions-services.js
+
+const getFilteredQuestions = async (difficulty, game) => {
+    try {
+      return await Questions.find({ difficult: difficulty, game: game });
+    } catch (error) {
+      throw new Error('Error fetching filtered questions');
+    }
+  };
+  
 module.exports = {
     getQuestion,
     getAllQuestions,
@@ -36,5 +47,6 @@ module.exports = {
     addQuestion,
     removeQuestion,
     updateDifficult,
-    updateQuestionUse
+    updateQuestionUse,
+    getFilteredQuestions
 }
