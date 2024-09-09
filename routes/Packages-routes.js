@@ -10,7 +10,7 @@ const {
 module.exports = function (app) {
     app
         // Get a specific package by ID
-        .get('/api/package/:packageId', getPackageCont)
+        .get('/api/package/:packageId',getPackageCont)
         
         // Get all packages
         .get('/api/packages', getAllPackagesCont)

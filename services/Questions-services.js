@@ -1,45 +1,60 @@
-const Questions = require('../models/Questions')
+const Questions = require('../models/Questions');
 
-const getQuestion= (questionId) =>{
-    return Questions.findOne({_id:questionId})
-}
+const getQuestion = (questionId) => {
+    return Questions.findById(questionId).exec();
+};
 
-const getAllQuestions=()=>{
-    return Questions.find({})
-}
-const getAttributeQuestions= (attribute, category) =>{
-    return Questions.find({[attribute]:category})
-}
-const addQuestion= (questionsObject) =>{
-    newQuestion = new Questions(questionsObject)
-    return newQuestion.save()
-}
-const removeQuestion=(questionId)=>{
-    return Questions.findOneAndRemove({questionId})
-}
+const getAllQuestions = () => {
+    return Questions.find({}).exec();
+};
 
-const updateDifficult=(questionId, newDifficult) =>{
-            return Questions.findByIdAndUpdate(questionId,{difficult: newDifficult});
-}
+const getAttributeQuestions = (attribute, category) => {
+    return Questions.find({ [attribute]: category }).exec();
+};
 
-const updateQuestionUse= (questionId, success) =>{
-    const row = getQuestion(questionId);
-    if (success) {
-        return Questions.findByIdAndUpdate(questionId,{appearance:row.appearance + 1, successRate:row.successRate + 1})
-    }
-    return Questions.findByIdAndUpdate(questionId,{appearance:row.appearance + 1, successRate:row.successRate})
-}
-//new
-// In your services/Questions-services.js
+const addQuestion = (questionsObject) => {
+    const newQuestion = new Questions(questionsObject);
+    return newQuestion.save();
+};
 
-const getFilteredQuestions = async (difficulty, game) => {
+const removeQuestion = (questionId) => {
+    return Questions.findByIdAndRemove(questionId).exec();
+};
+
+const updateDifficult = (questionId, newDifficult) => {
+    return Questions.findByIdAndUpdate(questionId, { difficult: newDifficult }).exec();
+};
+
+const updateQuestionUse = async (questionId, success) => {
+    const question = await getQuestion(questionId);
+    if (!question) return null;
+
+    const newAppearance = question.appearance + 1;
+    const newSuccessRate = success ? question.successRate + 1 : question.successRate;
+
+    return Questions.findByIdAndUpdate(questionId, { appearance: newAppearance, successRate: newSuccessRate }).exec();
+};
+
+const getFilteredQuestions = (difficulty, game) => {
+    return Questions.find({ difficulty, game }).exec();
+};
+const updateQuestionById = (id, updateData) =>{
     try {
-      return await Questions.find({ difficult: difficulty, game: game });
+        // Find and update the question by ID
+        const updatedQuestion =  Questions.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+        
+        // Check if the question was found and updated
+        if (!updatedQuestion) {
+            throw new Error('Question not found');
+        }
+        
+        return updatedQuestion;
     } catch (error) {
-      throw new Error('Error fetching filtered questions');
+        throw error;
     }
-  };
-  
+};
+
+
 module.exports = {
     getQuestion,
     getAllQuestions,
@@ -48,5 +63,6 @@ module.exports = {
     removeQuestion,
     updateDifficult,
     updateQuestionUse,
-    getFilteredQuestions
-}
+    getFilteredQuestions,
+    updateQuestionById
+};
