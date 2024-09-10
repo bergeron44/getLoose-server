@@ -73,13 +73,20 @@ const getGameQuestionsCont = async (req, res) => {
 
 const addQuestionCont = async (req, res) => {
     try {
-        const { answer, question } = req.body;
+        const { question, punishment, ...rest } = req.body;
 
-        if (!answer || !question) {
-            return serverResponse(res, 400, { message: "Question and answer are required" });
+        if (!question || !punishment) {
+            return serverResponse(res, 400, { message: "Question and punishment  required" });
         }
 
-        const newQuestion = await addQuestion(req.body);
+        // Ensure all required fields are provided and set defaults for optional fields
+        const newQuestionData = {
+            question,
+            punishment,
+            ...rest, // Spread the rest of the fields, which may include optional fields
+        };
+
+        const newQuestion = await addQuestion(newQuestionData);
 
         return serverResponse(res, 201, newQuestion);
     } catch (e) {
