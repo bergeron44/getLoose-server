@@ -1,7 +1,7 @@
 const {
     getDailyStatisticCont,
     deleteDailyStatisticCont,
-    editdailyStatisticCont,
+    editDailyStatisticCont,
     createDailyStatisticCont,
     getAllDailyStatisticPackagesCont,
     getAllDailyStatisticCont,
@@ -9,14 +9,14 @@ const {
 
 module.exports = function (app) {
     // GET routes
-    app.get('/api/DailyStatistics/:DailyStatisticId', getDailyStatisticCont);
-    app.get('/api/DailyStatistics', getAllDailyStatisticCont);
-    app.get('/api/categorys/packages', getAllDailyStatisticPackagesCont);
+    app.get('/api/daily-statistics/:id', getDailyStatisticCont); // Use :id for dynamic parameter
+    app.get('/api/daily-statistics', getAllDailyStatisticCont);
+    app.get('/api/daily-statistics/packages', getAllDailyStatisticPackagesCont); // Adjusted path for consistency
 
     // POST routes
-    app.post('/api/categorys/:DailyStatisticId/edit', editdailyStatisticCont);
-    app.post('/api/categorys/create', createDailyStatisticCont);
+    app.post('/api/daily-statistics', createDailyStatisticCont); // Use POST for creation
+    app.put('/api/daily-statistics/:id', editDailyStatisticCont); // Use PUT for updates
 
     // DELETE routes
-    app.delete('/api/categorys/:DailyStatisticId/delete', deleteDailyStatisticCont);
+    app.delete('/api/daily-statistics/:id', deleteDailyStatisticCont); // Consistent use of :id
 };

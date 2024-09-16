@@ -1,129 +1,71 @@
-const {
-    getAllDailyStatistics,
-    getAllDailyStatisticsWithSameAttribute,
-    getDailyStatisticByBar,
-    getDailyStatisticByDate,
-    getDailyStatisticByDay,
-    getDailyStatisticByPackage,
-    getDailyStatisticByQuantity,
-    updateDailyStatistic,
-    updateDailyStatisticById,
-    removeDailyStatisticsByAttribute,
-    removeSpacificDailyStatistic,
-    addDailyStatistic,
-    getDailyStatistic,
-} = require('../services/DailyStatistic-services')
-const serverResponse = require('../utils/serverResponse')
+const DailyStatisticService = require('../services/DailyStatistic-services');
 
-const getDailyStatisticCont = async (req, res) => {
-    try{
-        const DailyStatistic = await getDailyStatistic(req.params.day,req.params.bar,req.params.package)
-        const {day, bar,package,date,quantity,rebuy} = DailyStatistic
-        if(!DailyStatistic){
-            return serverResponse(res, 404, { message: "no daily statistic found"})
-        }
-        return serverResponse(res, 200, {day, bar,package,date,quantity,rebuy})
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occured while trying to get this statistic '})
+// Create a new Daily Statistic
+exports.createDailyStatisticCont = async (req, res) => {
+    try {
+        const dailyStatistic = await DailyStatisticService.createDailyStatistic(req.body);
+        res.status(201).json(dailyStatistic);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
-}
-const deleteDailyStatisticCont = async (req, res) => {
-    try{
-        const DailyStatistic = await removeSpacificDailyStatistic(eq.params.day,req.params.bar,req.params.package)
+};
 
-        if(!DailyStatistic){
-            return serverResponse(res, 404, { message: "the DailyStatistic dosent exsist"})
-        }
-
-        return serverResponse(res, 200,  { message: "DailyStatistic remove seccesfully"})
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occured while trying to remove DailyStatistic'})
+// Get all Daily Statistics
+exports.getAllDailyStatisticCont = async (req, res) => {
+    try {
+        const dailyStatistics = await DailyStatisticService.getDailyStatistics();
+        res.status(200).json(dailyStatistics);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
-}
-const createDailyStatisticCont = async (req, res) => {
-    try{
-        const newDailyStatistic= {...req.body}
-            if((newDailyStatistic.bar=={})||(newDailyStatistic.day=="")||(newDailyStatistic.package=={})){
-             return serverResponse(res, 404, { message: "no capble to add new category becose you dont fill all parameters"})
-        }
-        const oldDailyStatistic = await getDailyStatistic(req.params.day,req.params.bar,req.params.package)
-             if(!oldDailyStatistic){
-                const dailyStatistic = await addDailyStatistic(newDailyStatistic)
-                if(!newDailyStatistic){
-                    return serverResponse(res, 404, { message: "no capble to add new Daily Statistic"})
-                }
-                return serverResponse(res, 200,newcategory)
-           }
-           else
-           {
-            const dailyStatistic=await updateDailyStatisticById(oldDailyStatistic._id,{quantity:oldDailyStatistic.quantity+1})
-           }
+};
 
-        return serverResponse(res, 200, dailyStatistic)
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occured while trying to add this dailyStat'})
+// Get a Daily Statistic by ID
+exports.getDailyStatisticCont = async (req, res) => {
+    try {
+        const dailyStatistic = await DailyStatisticService.getDailyStatisticById(req.params.id);
+        if (!dailyStatistic) {
+            return res.status(404).json({ message: 'DailyStatistic not found' });
+        }
+        res.status(200).json(dailyStatistic);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
-}
-const editdailyStatisticCont = async (req, res) => {
-    try{
-        const DailyStatistic = await getDailyStatistic(req.params.day,req.params.bar,req.params.package)
+};
 
-        if(!DailyStatistic){
-            return serverResponse(res, 400, { message: "no Daily Statistic found"})
+// Update a Daily Statistic by ID
+exports.editDailyStatisticCont = async (req, res) => {
+    try {
+        const dailyStatistic = await DailyStatisticService.updateDailyStatistic(req.params.id, req.body);
+        if (!dailyStatistic) {
+            return res.status(404).json({ message: 'DailyStatistic not found' });
         }
-        const newDailyStatistic={...req.body};
-        const updatedDailyStatistic = await updateDailyStatistic(DailyStatistic._id,newDailyStatistic);
-        if(!updatedDailyStatistic){
-            return serverResponse(res, 400, { message: "update sucsesfuly dDaily Statistic"})
-        }
-
-        return serverResponse(res, 200, updatedDailyStatistic)
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occured while trying to update Daily Statistic'})
+        res.status(200).json(dailyStatistic);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
-}
-//not needed we can just get them all and in the front dill with thet
-const getAllDailyStatisticPackagesCont = async (req, res) => {
-    try{
-        const allDailyStatistic = await getAllDailyStatistics()
-        const arr=[]
-        allDailyStatistic.forEach(({package}) =>{arr.push(package)})
-        if(!allDailyStatistic){
-            return serverResponse(res, 404, { message: "no capble to get all Daily Statistic's"})
+};
+
+// Delete a Daily Statistic by ID
+exports.deleteDailyStatisticCont = async (req, res) => {
+    try {
+        const result = await DailyStatisticService.deleteDailyStatistic(req.params.id);
+        if (!result) {
+            return res.status(404).json({ message: 'DailyStatistic not found' });
         }
-
-        return serverResponse(res, 200, arr)
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occured while trying to get all names from Daily Statistic'})
+        res.status(204).send();
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
-}
-const getAllDailyStatisticCont = async (req, res) => {
-    try{
-        const allDailyStatistic = await getAllDailyStatistics()
-       
-        if(!allDailyStatistic){
-            return serverResponse(res, 404, { message: "no capble to get all Daily Statistic's"})
-        }
+};
 
-        return serverResponse(res, 200, allDailyStatistic)
-    } catch(e){
-        console.log(e)
-        return serverResponse(res, 500, {message: 'internal error occured while trying to get all names from all Daily Statistic'})
+// Get all Daily Statistic packages
+exports.getAllDailyStatisticPackagesCont = async (req, res) => {
+    try {
+        // Assuming there's a method in your service to get packages
+        const packages = await DailyStatisticService.getAllDailyStatisticPackages();
+        res.status(200).json(packages);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
     }
-}
-
-
-
-module.exports = {
-    getDailyStatisticCont,
-    deleteDailyStatisticCont,
-    editdailyStatisticCont,
-    createDailyStatisticCont,
-    getAllDailyStatisticPackagesCont,
-    getAllDailyStatisticCont,
-}
+};
