@@ -10,11 +10,12 @@ const BarsSchema = new mongoose.Schema({
         type: {
             type: String,
             enum: ['Point'], // Specifies that the type must be 'Point'
-            default: 0,
+            default: 'Point',
         },
         coordinates: {
             type: [Number], // Array of numbers representing [longitude, latitude]
-            default: 0,
+            required: true,
+            default: [0, 0], // Default to [longitude, latitude]
         },
     },
     capacity: {
@@ -32,7 +33,22 @@ const BarsSchema = new mongoose.Schema({
     },
     barIp: {
         type: String,
-        required: true, // the bar ip
+        required: true, // the bar IP
+    },
+    // New field for tracking the number of games played for each type
+    gameStats: {
+        datingGame: {
+            type: Number,
+            default: 0, // Default to 0 games played
+        },
+        friendsGame: {
+            type: Number,
+            default: 0, // Default to 0 games played
+        },
+        partyGame: {
+            type: Number,
+            default: 0, // Default to 0 games played
+        },
     },
 });
 
