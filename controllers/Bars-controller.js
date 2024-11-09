@@ -230,6 +230,38 @@ const getBarByQrUrlCont = async (req, res) => {
     }
 };
 
+const updateGameStatsCont = async (req, res) => {
+    const { barId, gameType } = req.params; // Get the bar ID and game type from the params
+
+    try {
+        // Find the bar by ID
+        const bar = await Bars.findById(barId);
+        if (!bar) {
+            return res.status(404).json({ message: 'Bar not found' });
+        }
+
+        // Increment the game stats based on the game type
+        if (gameType === 'datingGame') {
+            bar.gameStats.datingGame += 1;
+        } else if (gameType === 'friendsGame') {
+            bar.gameStats.friendsGame += 1;
+        } else if (gameType === 'partyGame') {
+            bar.gameStats.partyGame += 1;
+        } else {
+            return res.status(400).json({ message: 'Invalid game type' });
+        }
+
+        // Save the updated bar
+        await bar.save();
+        res.status(200).json({ message: 'Game stats updated successfully', bar });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
+
 const updateLiveGameWithIP = async (req, res) => {
     try {
         const { barId, ipAddress } = req.body;
@@ -267,4 +299,5 @@ module.exports = {
     findNearestBarCont,
     getBarByQrUrlCont, // Export the new function
     updateLiveGameWithIP, // Export the new function
+    updateGameStatsCont,
 };
