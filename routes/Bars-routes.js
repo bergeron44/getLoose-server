@@ -26,7 +26,7 @@ module.exports = function (app) {
         .post('/api/bar/:barId/edit', editBarCont)                   // Update bar by ID
         .post('/api/bar/create', createBarCont)                      // Create a new bar
         .post('/api/live-games/update-ip', updateLiveGameWithIP)
-        .post('/api/bar/:barId/game-stats/:gameType', updateGameStatsCont); 
+        .post('/api/bar/:barId/game-stats/:gameType', updateGameStatsCont)
         .delete('/api/bar/:barName/delete', deleteBarByNameCont);    // Delete a bar by name
 
 };
