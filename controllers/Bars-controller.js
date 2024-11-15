@@ -233,11 +233,25 @@ const getBarByQrUrlCont = async (req, res) => {
 const updateGameStatsCont = async (req, res) => {
     const { barId, gameType } = req.params; // Get the bar ID and game type from the params
 
+    // Validate the bar ID
+    if (!mongoose.Types.ObjectId.isValid(barId)) {
+        return res.status(400).json({ message: 'Invalid bar ID' });
+    }
+
     try {
         // Find the bar by ID
         const bar = await Bars.findById(barId);
         if (!bar) {
             return res.status(404).json({ message: 'Bar not found' });
+        }
+
+        // Ensure gameStats is initialized
+        if (!bar.gameStats) {
+            bar.gameStats = {
+                datingGame: 0,
+                friendsGame: 0,
+                partyGame: 0
+            };
         }
 
         // Increment the game stats based on the game type
@@ -255,10 +269,11 @@ const updateGameStatsCont = async (req, res) => {
         await bar.save();
         res.status(200).json({ message: 'Game stats updated successfully', bar });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error updating game stats:', error.message);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
 
 
 
