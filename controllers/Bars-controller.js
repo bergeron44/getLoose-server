@@ -234,9 +234,9 @@ const updateGameStatsCont = async (req, res) => {
     const { barId, gameType } = req.params; // Get the bar ID and game type from the params
 
     // Validate the bar ID
-    if (!mongoose.Types.ObjectId.isValid(barId)) {
-        return res.status(400).json({ message: 'Invalid bar ID' });
-    }
+    // if (!mongoose.Types.ObjectId.isValid(barId)) {
+    //     return res.status(400).json({ message: 'Invalid bar ID' });
+    // }
 
     try {
         // Find the bar by ID
