@@ -231,30 +231,25 @@ const getBarByQrUrlCont = async (req, res) => {
 };
 
 const updateGameStatsCont = async (req, res) => {
-    const { barId, gameType } = req.params; // Get the bar ID and game type from the params
+    const { barId, gameType } = req.params;
 
-    // Validate the bar ID
-    // if (!mongoose.Types.ObjectId.isValid(barId)) {
+    // const isValidObjectId = mongoose.Types.ObjectId.isValid(barId);
+    // if (!isValidObjectId) {
     //     return res.status(400).json({ message: 'Invalid bar ID' });
     // }
 
     try {
-        // Find the bar by ID
         const bar = await Bars.findById(barId);
         if (!bar) {
             return res.status(404).json({ message: 'Bar not found' });
         }
 
-        // Ensure gameStats is initialized
-        if (!bar.gameStats) {
-            bar.gameStats = {
-                datingGame: 0,
-                friendsGame: 0,
-                partyGame: 0
-            };
+        // Ensure coordinates are not empty
+        if (!bar.location.coordinates || bar.location.coordinates.length === 0) {
+            bar.location.coordinates = [0, 0];  // Default to [0, 0] if coordinates are empty
         }
 
-        // Increment the game stats based on the game type
+        // Increment game stats based on game type
         if (gameType === 'datingGame') {
             bar.gameStats.datingGame += 1;
         } else if (gameType === 'friendsGame') {
@@ -269,8 +264,8 @@ const updateGameStatsCont = async (req, res) => {
         await bar.save();
         res.status(200).json({ message: 'Game stats updated successfully', bar });
     } catch (error) {
-        console.error('Error updating game stats:', error.message);
-        res.status(500).json({ message: 'Server error', error: error.message });
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 

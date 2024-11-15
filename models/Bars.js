@@ -4,51 +4,52 @@ const mongoose = require('mongoose');
 const BarsSchema = new mongoose.Schema({
     barName: {
         type: String,
-        required: true, // barName is mandatory
+        required: true,
     },
     location: {
         type: {
             type: String,
-            enum: ['Point'], // Specifies that the type must be 'Point'
+            enum: ['Point'],
             default: 'Point',
         },
         coordinates: {
-            type: [Number], // Array of numbers representing [longitude, latitude]
+            type: [Number],
             required: true,
-            default: [0, 0], // Default to [longitude, latitude]
+            default: [0, 0], // Default to [0, 0] if not provided
         },
     },
     capacity: {
         type: Number,
-        default: 0, // Default capacity is 0
+        default: 0,
     },
     barPackages: [{
         type: mongoose.Types.ObjectId,
-        ref: 'Packages', // Reference to the Packages collection
-        default: [], // Default to an empty array if no packages are provided
+        ref: 'Packages',
+        default: [],
     }],
     qrUrl: {
         type: String,
-        required: true, // qrUrl is mandatory
+        required: true,
+        match: [/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/, 'Invalid URL'],
     },
     barIp: {
         type: String,
         required: true,
-        default: '0.0.0.0', // Example default value
+        default: '0.0.0.0',
+        match: [/^(?:\d{1,3}\.){3}\d{1,3}$/, 'Invalid IP address'],
     },
-    // New field for tracking the number of games played for each type
     gameStats: {
         datingGame: {
             type: Number,
-            default: 0, // Default to 0 games played
+            default: 0,
         },
         friendsGame: {
             type: Number,
-            default: 0, // Default to 0 games played
+            default: 0,
         },
         partyGame: {
             type: Number,
-            default: 0, // Default to 0 games played
+            default: 0,
         },
     },
 });
