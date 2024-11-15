@@ -33,7 +33,8 @@ const BarsSchema = new mongoose.Schema({
     },
     barIp: {
         type: String,
-        required: true, // the bar IP
+        required: true,
+        default: '0.0.0.0', // Example default value
     },
     // New field for tracking the number of games played for each type
     gameStats: {
